@@ -1,6 +1,9 @@
 import fs from "node:fs/promises";
 import { google, youtube_v3 } from "googleapis";
-import { OAUTH_CLIENT_FILE } from "./config.js";
+import {
+  LOCAL_TOKEN_FILE,
+  OAUTH_CLIENT_FILE
+} from "./config.js";
 import { PlaylistMapEntry } from "./types.js";
 
 const YOUTUBE_SCOPE = "https://www.googleapis.com/auth/youtube";
@@ -33,9 +36,17 @@ async function getOAuthClient() {
     installed.redirect_uris?.[0]
   );
 
-  throw new Error(
-    "Local OAuth credentials are not initialized. Run `npm run oauth` first, then use the generated refresh token."
-  );
+  const tokenRaw = await fs.readFile(LOCAL_TOKEN_FILE, "utf8");
+  const tokens = JSON.parse(tokenRaw);
+
+  if (typeof tokens.refresh_token !== "string" || !tokens.refresh_token) {
+    throw new Error(
+      "Token JSON does not contain a refresh_token. Run `npm run oauth` again."
+    );
+  }
+
+  auth.setCredentials(tokens);
+  return auth;
 }
 
 export async function getYouTube(): Promise<youtube_v3.Youtube> {
