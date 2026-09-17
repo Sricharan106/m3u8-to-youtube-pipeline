@@ -27,7 +27,7 @@ function run(
       } else {
         reject(
           new Error(
-            `FFmpeg exited with code ${code}.\n${stderr.trim()}`
+            `yt-dlp exited with code ${code}.\n${stderr.trim()}`
           )
         );
       }
@@ -41,21 +41,22 @@ export async function downloadM3U8(
 ): Promise<void> {
   await fs.rm(outputFile, { force: true });
 
-  await run("ffmpeg", [
-    "-hide_banner",
-    "-loglevel", "warning",
-    "-y",
-    "-i", m3u8Url,
-    "-map", "0:v:0?",
-    "-map", "0:a:0?",
-    "-c", "copy",
-    "-movflags", "+faststart",
-    outputFile
+  const concurrentFragments = process.env.YTDLP_CONCURRENT_FRAGMENTS ?? "8";
+
+  await run("yt-dlp", [
+    "--downloader", "native",
+    "--concurrent-fragments", concurrentFragments,
+    "--no-playlist",
+    "--no-part",
+    "--force-overwrites",
+    "--format", "best[ext=mp4]/best",
+    "--output", outputFile,
+    m3u8Url
   ]);
 
   const stat = await fs.stat(outputFile);
 
   if (stat.size === 0) {
-    throw new Error("FFmpeg produced an empty file.");
+    throw new Error("yt-dlp produced an empty file.");
   }
 }

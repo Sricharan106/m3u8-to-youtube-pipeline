@@ -1,10 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import {
-  AnyRecord,
-  ErrorRecord,
-  PlaylistFile
-} from "./types.js";
+import { AnyRecord, ErrorRecord } from "./types.js";
 
 export async function ensureDir(filePath: string): Promise<void> {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
@@ -85,12 +81,5 @@ export async function appendError(
 
   (data.learningPath as AnyRecord[]).push(errorRecord as unknown as AnyRecord);
 
-  await writeJsonAtomic(filePath, data);
-}
-
-export async function writePlaylistFile(
-  filePath: string,
-  data: PlaylistFile
-): Promise<void> {
   await writeJsonAtomic(filePath, data);
 }

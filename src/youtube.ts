@@ -4,7 +4,6 @@ import {
   LOCAL_TOKEN_FILE,
   OAUTH_CLIENT_FILE
 } from "./config.js";
-import { PlaylistMapEntry } from "./types.js";
 
 const YOUTUBE_SCOPE = "https://www.googleapis.com/auth/youtube";
 
@@ -94,102 +93,6 @@ export async function uploadVideo(
     videoId,
     url: `https://www.youtube.com/watch?v=${videoId}`
   };
-}
-
-export async function findPlaylist(
-  youtube: youtube_v3.Youtube,
-  title: string
-): Promise<PlaylistMapEntry | null> {
-  let pageToken: string | undefined;
-
-  do {
-    const response = await youtube.playlists.list({
-      part: ["snippet", "status"],
-      mine: true,
-      maxResults: 50,
-      pageToken
-    });
-
-    for (const playlist of response.data.items ?? []) {
-      if (
-        playlist.id &&
-        playlist.snippet?.title === title
-      ) {
-        return {
-          id: playlist.id,
-          title,
-          url: `https://www.youtube.com/playlist?list=${playlist.id}`
-        };
-      }
-    }
-
-    pageToken = response.data.nextPageToken ?? undefined;
-  } while (pageToken);
-
-  return null;
-}
-
-export async function getOrCreatePlaylist(
-  youtube: youtube_v3.Youtube,
-  title: string
-): Promise<PlaylistMapEntry> {
-  const existing = await findPlaylist(youtube, title);
-
-  if (existing) {
-    return existing;
-  }
-
-  const response = await youtube.playlists.insert({
-    part: ["snippet", "status"],
-    requestBody: {
-      snippet: {
-        title,
-        description: `Course playlist: ${title}`
-      },
-      status: {
-        privacyStatus: "unlisted"
-      }
-    }
-  });
-
-  const id = response.data.id;
-
-  if (!id) {
-    throw new Error(`Failed to create playlist "${title}".`);
-  }
-
-  return {
-    id,
-    title,
-    url: `https://www.youtube.com/playlist?list=${id}`
-  };
-}
-
-export async function addVideoToPlaylist(
-  youtube: youtube_v3.Youtube,
-  playlistId: string,
-  videoId: string
-): Promise<string> {
-  const response = await youtube.playlistItems.insert({
-    part: ["snippet"],
-    requestBody: {
-      snippet: {
-        playlistId,
-        resourceId: {
-          kind: "youtube#video",
-          videoId
-        }
-      }
-    }
-  });
-
-  const playlistItemId = response.data.id;
-
-  if (!playlistItemId) {
-    throw new Error("YouTube returned no playlist item ID.");
-  }
-
-  return playlistItemId;
 }
 
 export { YOUTUBE_SCOPE };

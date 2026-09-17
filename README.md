@@ -1,22 +1,21 @@
-# M3U8 → YouTube Uploader
+# M3U8 to YouTube Uploader
 
 Node.js + TypeScript worker that:
 
 1. Reads `data/video-prime.json`.
 2. Processes only records whose `type` is `ivideo`.
-3. Downloads each `m3u8_url` to a temporary MP4 using FFmpeg.
+3. Downloads each `m3u8_url` to a temporary MP4 using `yt-dlp` with concurrent HLS fragments.
 4. Uploads the MP4 to YouTube.
 5. Uploads with `privacyStatus: unlisted`.
-6. Adds the uploaded video to the playlist for its category.
-7. Saves the complete original record plus YouTube metadata to `data/video-prime-yt.json`.
-8. Adds the completed record to `data/success.json`.
-9. Adds failures to `data/error.json` with the processing stage.
-10. Deletes the temporary video after processing.
+6. Saves the complete original record plus YouTube metadata to `data/video-prime-yt.json`.
+7. Adds the completed record to `data/success.json`.
+8. Adds failures to `data/error.json` with the processing stage.
+9. Deletes the temporary video after processing.
 
 ## Requirements
 
 - Node.js 20+
-- FFmpeg installed and available as `ffmpeg`
+- `yt-dlp` installed and available as `yt-dlp`
 - A Google Cloud project with YouTube Data API v3 enabled
 - OAuth 2.0 Desktop application credentials
 
@@ -49,12 +48,6 @@ The script does not replace your original fields. It copies the complete record 
   "videoId": "...",
   "url": "https://www.youtube.com/watch?v=...",
   "privacyStatus": "unlisted",
-  "playlist": {
-    "id": "...",
-    "title": "...",
-    "url": "...",
-    "playlistItemId": "..."
-  },
   "uploadedAt": "..."
 }
 ```
@@ -65,10 +58,10 @@ The script does not replace your original fields. It copies the complete record 
 npm install
 ```
 
-Check FFmpeg:
+Check `yt-dlp`:
 
 ```bash
-ffmpeg -version
+yt-dlp --version
 ```
 
 ## 2. Google OAuth
@@ -131,7 +124,7 @@ Set the Render worker start command to:
 npm install && npm run build && npm start
 ```
 
-FFmpeg must also be available in the Render environment. The included `render.yaml` uses a Docker image and installs FFmpeg.
+`yt-dlp` must also be available in the Render environment. The included Docker image installs it.
 
 ## Important persistence note
 

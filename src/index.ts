@@ -4,29 +4,17 @@ import {
   ERROR_FILE,
   INPUT_FILE,
   OUTPUT_FILE,
-  PLAYLIST_FILE,
   SUCCESS_FILE,
   TEMP_DIR
 } from "./config.js";
 import { downloadM3U8 } from "./downloader.js";
-import {
-  addVideoToPlaylist,
-  getOrCreatePlaylist,
-  getYouTube,
-  uploadVideo
-} from "./youtube.js";
+import { getYouTube, uploadVideo } from "./youtube.js";
 import {
   appendError,
   appendToLearningPath,
-  readJson,
-  writeJsonAtomic,
-  writePlaylistFile
+  readJson
 } from "./storage.js";
-import {
-  AnyRecord,
-  ErrorRecord,
-  PlaylistFile
-} from "./types.js";
+import { AnyRecord, ErrorRecord } from "./types.js";
 
 function getString(
   record: AnyRecord,
@@ -125,8 +113,7 @@ function tempFileName(record: AnyRecord): string {
 
 async function processOne(
   youtube: Awaited<ReturnType<typeof getYouTube>>,
-  item: { record: AnyRecord; category: string },
-  playlists: PlaylistFile
+  item: { record: AnyRecord; category: string }
 ): Promise<void> {
   const record = item.record;
 
@@ -152,11 +139,11 @@ async function processOne(
     console.log(`Source ID: ${sourceId}`);
     console.log(`Category: ${item.category}`);
 
-    console.log("1/4 Downloading M3U8...");
+    console.log("1/3 Downloading M3U8 with yt-dlp...");
     await downloadM3U8(m3u8Url, tempFile);
     console.log("Download complete.");
 
-    console.log("2/4 Uploading to YouTube as UNLISTED...");
+    console.log("2/3 Uploading to YouTube as UNLISTED...");
     const uploaded = await uploadVideo(
       youtube,
       tempFile,
@@ -165,42 +152,17 @@ async function processOne(
     );
     console.log(`Uploaded: ${uploaded.url}`);
 
-    console.log("3/4 Getting/creating playlist...");
-    let playlist = playlists.playlists[item.category];
-
-    if (!playlist) {
-      playlist = await getOrCreatePlaylist(
-        youtube,
-        item.category
-      );
-
-      playlists.playlists[item.category] = playlist;
-      await writePlaylistFile(PLAYLIST_FILE, playlists);
-    }
-
-    const playlistItemId = await addVideoToPlaylist(
-      youtube,
-      playlist.id,
-      uploaded.videoId
-    );
-
-    console.log(`Added to playlist: ${playlist.title}`);
-
     const outputRecord: AnyRecord = {
       ...record,
       youtube: {
         videoId: uploaded.videoId,
         url: uploaded.url,
         privacyStatus: "unlisted",
-        playlist: {
-          ...playlist,
-          playlistItemId
-        },
         uploadedAt: new Date().toISOString()
       }
     };
 
-    console.log("4/4 Saving JSON...");
+    console.log("3/3 Saving JSON...");
     await appendToLearningPath(
       OUTPUT_FILE,
       outputRecord
@@ -225,11 +187,6 @@ async function main() {
     { learningPath: [] }
   );
 
-  const playlists = await readJson<PlaylistFile>(
-    PLAYLIST_FILE,
-    { playlists: {} }
-  );
-
   const youtube = await getYouTube();
 
   const videos = getVideoRecords(input);
@@ -249,7 +206,7 @@ async function main() {
     }
 
     try {
-      await processOne(youtube, item, playlists);
+      await processOne(youtube, item);
     } catch (error: unknown) {
       failed++;
 

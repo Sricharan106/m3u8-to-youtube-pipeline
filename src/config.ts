@@ -14,9 +14,6 @@ export const SUCCESS_FILE =
 export const ERROR_FILE =
   process.env.ERROR_FILE ?? path.join(ROOT, "data/error.json");
 
-export const PLAYLIST_FILE =
-  process.env.PLAYLIST_FILE ?? path.join(ROOT, "data/playlists.json");
-
 export const TEMP_DIR =
   process.env.TEMP_DIR ?? path.join(ROOT, "temp");
 
