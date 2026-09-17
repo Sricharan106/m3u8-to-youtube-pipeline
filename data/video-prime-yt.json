@@ -1,3 +1,42 @@
 {
-  "learningPath": []
+  "learningPath": [
+    {
+      "id": "6919726be1db856c8e0f0625",
+      "name": "Orientation Session (Group1)",
+      "type": "ivideo",
+      "sourceId": "06tldonb8e",
+      "m3u8_url": "https://fast.wistia.com/embed/medias/06tldonb8e.m3u8",
+      "youtube": {
+        "videoId": "jP7GrIZEP1w",
+        "url": "https://www.youtube.com/watch?v=jP7GrIZEP1w",
+        "privacyStatus": "unlisted",
+        "playlist": {
+          "id": "PLUsewwqeY0tA",
+          "title": "Live Session (Recordings)",
+          "url": "https://www.youtube.com/playlist?list=PLUsewwqeY0tA",
+          "playlistItemId": "UExVc2V3d3FlWTB0QS41NkI0NEY2RDEwNTU3Q0M2"
+        },
+        "uploadedAt": "2026-09-16T18:10:59.554Z"
+      }
+    },
+    {
+      "id": "6919727736b2acbb330fce57",
+      "name": "Orientation Session (Group2)",
+      "type": "ivideo",
+      "sourceId": "2xknh67o6e",
+      "m3u8_url": "https://fast.wistia.com/embed/medias/2xknh67o6e.m3u8",
+      "youtube": {
+        "videoId": "_fcpuObWi38",
+        "url": "https://www.youtube.com/watch?v=_fcpuObWi38",
+        "privacyStatus": "unlisted",
+        "playlist": {
+          "id": "PLUsewwqeY0tA",
+          "title": "Live Session (Recordings)",
+          "url": "https://www.youtube.com/playlist?list=PLUsewwqeY0tA",
+          "playlistItemId": "UExVc2V3d3FlWTB0QS4yODlGNEE0NkRGMEEzMEQy"
+        },
+        "uploadedAt": "2026-09-16T18:27:24.200Z"
+      }
+    }
+  ]
 }
